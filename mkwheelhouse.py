@@ -68,11 +68,22 @@ class Bucket(object):
 
     def generate_url(self, key):
         key = self.get_key(key)
-        return key.generate_url(
-            expires_in=0, 
+        url = key.generate_url(
+            expires_in=0,
             query_auth=False,
-            headers={'x-amz-security-token': ''}
         )
+        
+        # pip couldn't install these packages 
+        # if the x-amz-security-token was present.
+        from urllib import urlencode
+        from urlparse import parse_qs, urlsplit, urlunsplit
+
+        scheme, netloc, path, qs, fragment = urlsplit(url)
+        qs = parse_qs(qs)
+        del qs['x-amz-security-token']
+        qs = urlencode(qs, doseq=True)
+
+        return urlunsplit((scheme, netloc, path, qs, fragment))
 
     def list(self):
         return self.bucket.list(prefix=self.prefix)
