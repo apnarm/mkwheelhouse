@@ -133,7 +133,10 @@ def build_wheels(packages, index_url, requirements, exclusions):
         args += ['--requirement', requirement]
 
     args += packages
-    subprocess.check_call(args)
+    try:
+        subprocess.check_call(args)
+    except subprocess.CalledProcessError:
+        print('Wheel build for one or more packages failed.')
 
     for exclusion in exclusions:
         matches = glob.glob(os.path.join(temp_dir, exclusion))
